@@ -40,29 +40,29 @@ def myNetwork():
 
     info( '*** Add links\n')
     #Hosts to switches and routers
-    net.addLink(h1, s1, 1, 1)
-    net.addLink(h2, s1, 1, 2)
-    net.addLink(s2, h5, 1, 1)
-    net.addLink(s2, h6, 2, 1)
-    net.addLink(h3, r3, 1, 1)
-    net.addLink(h4, r2, 1, 1)
+    net.addLink(h1, s1)
+    net.addLink(h2, s1)
+    net.addLink(h5, s2)
+    net.addLink(h6, s2)
+    net.addLink(h3, r3)
+    net.addLink(h4, r2)
 
     #Switches and router connections
-    net.addLink(s1, r1, 3, 1)
-    net.addLink(s2, r4, 3, 1)
+    net.addLink(s1, r1)
+    net.addLink(s2, r4)
 
     #Router connections
-    net.addLink(r1, r2, 2, 2)
-    net.addLink(r2, r3, 3, 2)
-    net.addLink(r3, r4, 3, 2)
-    net.addLink(r1, r4, 3, 3)
+    net.addLink(r1, r2)
+    net.addLink(r2, r4)
+    net.addLink(r4, r3)
+    net.addLink(r3, r1)
 
 
     #set intf IP
-    r1.intf('r1-eth1').setIP('10.0.1.1',24);
-    r1.intf('r2-eth1').setIP('10.0.2.1',24);
-    r1.intf('r3-eth1').setIP('10.0.3.1',24);
-    r1.intf('r4-eth1').setIP('10.0.4.1',24);
+    # r1.intf('r1-eth1').setIP('10.0.1.1',24);
+    # r2.intf('r2-eth1').setIP('10.0.2.1',24);
+    # r3.intf('r3-eth1').setIP('10.0.3.1',24);
+    # r4.intf('r4-eth1').setIP('10.0.4.1',24);
 
 
 
