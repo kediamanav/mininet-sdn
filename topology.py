@@ -52,18 +52,25 @@ def myNetwork():
     net.addLink(s2, r4)
 
     #Router connections
+    net.addLink(r1, r3)
     net.addLink(r1, r2)
     net.addLink(r2, r4)
-    net.addLink(r4, r3)
-    net.addLink(r3, r1)
+    net.addLink(r3, r4)
 
 
-    #set intf IP
-    # r1.intf('r1-eth1').setIP('10.0.1.1',24);
-    # r2.intf('r2-eth1').setIP('10.0.2.1',24);
-    # r3.intf('r3-eth1').setIP('10.0.3.1',24);
-    # r4.intf('r4-eth1').setIP('10.0.4.1',24);
-
+    #set ip addresses of the interfaces
+    r1.intf('r1-eth1').setIP('10.0.1.1',24);
+    r1.intf('r1-eth2').setIP('192.0.1.1',24);
+    r1.intf('r1-eth3').setIP('192.0.2.1',24);
+    r2.intf('r2-eth1').setIP('10.0.2.1',24);
+    r2.intf('r2-eth2').setIP('192.0.2.2',24);
+    r2.intf('r2-eth3').setIP('192.0.3.1',24);
+    r3.intf('r3-eth1').setIP('10.0.3.1',24);
+    r3.intf('r3-eth2').setIP('192.0.1.2',24);
+    r3.intf('r3-eth3').setIP('192.0.4.1',24);
+    r4.intf('r4-eth1').setIP('10.0.4.1',24);
+    r4.intf('r4-eth2').setIP('192.0.3.2',24);
+    r4.intf('r4-eth3').setIP('192.0.4.2',24);
 
 
     info( '*** Starting network\n')
