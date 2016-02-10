@@ -25,37 +25,45 @@ def myNetwork():
     info( '*** Add switches and routers\n')
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch)
     s2 = net.addSwitch('s2', cls=OVSKernelSwitch)
-    r1 = net.addSwitch('r1', cls=OVSKernelSwitch)
+    r1 = net.addSwitch('r1', cls=OVSKernelSwitch, intfeth0='10.0.1.1', eth2='10.0.2.1')
     r2 = net.addSwitch('r2', cls=OVSKernelSwitch)
     r3 = net.addSwitch('r3', cls=OVSKernelSwitch)
     r4 = net.addSwitch('r4', cls=OVSKernelSwitch)
 
     info( '*** Add hosts\n')
-    h1 = net.addHost('h1', cls=Host, ip='10.0.0.1', defaultRoute=None)
-    h2 = net.addHost('h2', cls=Host, ip='10.0.0.2', defaultRoute=None)
-    h3 = net.addHost('h3', cls=Host, ip='10.0.0.3', defaultRoute=None)
-    h4 = net.addHost('h4', cls=Host, ip='10.0.0.4', defaultRoute=None)
-    h5 = net.addHost('h5', cls=Host, ip='10.0.0.5', defaultRoute=None)
-    h6 = net.addHost('h6', cls=Host, ip='10.0.0.6', defaultRoute=None)
+    h1 = net.addHost('h1', cls=Host, ip='10.0.1.2', defaultRoute=None)
+    h2 = net.addHost('h2', cls=Host, ip='10.0.1.3', defaultRoute=None)
+    h3 = net.addHost('h3', cls=Host, ip='10.0.2.2', defaultRoute=None)
+    h4 = net.addHost('h4', cls=Host, ip='10.0.3.2', defaultRoute=None)
+    h5 = net.addHost('h5', cls=Host, ip='10.0.4.2', defaultRoute=None)
+    h6 = net.addHost('h6', cls=Host, ip='10.0.4.3', defaultRoute=None)
 
     info( '*** Add links\n')
     #Hosts to switches and routers
-    net.addLink(h1, s1)
-    net.addLink(h2, s1)
-    net.addLink(s2, h5)
-    net.addLink(s2, h6)
-    net.addLink(h3, r3)
-    net.addLink(h4, r2)
+    net.addLink(h1, s1, 1, 1)
+    net.addLink(h2, s1, 1, 2)
+    net.addLink(s2, h5, 1, 1)
+    net.addLink(s2, h6, 2, 1)
+    net.addLink(h3, r3, 1, 1)
+    net.addLink(h4, r2, 1, 1)
 
     #Switches and router connections
-    net.addLink(s1, r1)
-    net.addLink(s2, r4)
+    net.addLink(s1, r1, 3, 1)
+    net.addLink(s2, r4, 3, 1)
 
     #Router connections
-    net.addLink(r1, r2)
-    net.addLink(r1, r3)
-    net.addLink(r3, r4)
-    net.addLink(r2, r4)
+    net.addLink(r1, r2, 2, 2)
+    net.addLink(r2, r3, 3, 2)
+    net.addLink(r3, r4, 3, 2)
+    net.addLink(r1, r4, 3, 3)
+
+
+    #set intf IP
+    r1.intf('r1-eth1').setIP('10.0.1.1',24);
+    r1.intf('r2-eth1').setIP('10.0.2.1',24);
+    r1.intf('r3-eth1').setIP('10.0.3.1',24);
+    r1.intf('r4-eth1').setIP('10.0.4.1',24);
+
 
 
     info( '*** Starting network\n')
@@ -76,6 +84,8 @@ def myNetwork():
 
     CLI(net)
     net.stop()
+
+
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
