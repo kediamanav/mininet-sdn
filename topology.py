@@ -62,10 +62,10 @@ def myNetwork():
     r1.intf('r1-eth1').setIP('10.0.1.1',24);
     r1.intf('r1-eth2').setIP('192.0.1.1',24);
     r1.intf('r1-eth3').setIP('192.0.2.1',24);
-    r2.intf('r2-eth1').setIP('10.0.2.1',24);
+    r2.intf('r2-eth1').setIP('10.0.3.1',24);
     r2.intf('r2-eth2').setIP('192.0.2.2',24);
     r2.intf('r2-eth3').setIP('192.0.3.1',24);
-    r3.intf('r3-eth1').setIP('10.0.3.1',24);
+    r3.intf('r3-eth1').setIP('10.0.2.1',24);
     r3.intf('r3-eth2').setIP('192.0.1.2',24);
     r3.intf('r3-eth3').setIP('192.0.4.1',24);
     r4.intf('r4-eth1').setIP('10.0.4.1',24);
