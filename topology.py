@@ -18,14 +18,14 @@ def myNetwork():
 
     info( '*** Adding controller\n' )
     c0=net.addController(name='c0',
-                      controller=Controller,
+                      controller=RemoteController,
                       protocol='tcp',
                       port=6633)
 
     info( '*** Add switches and routers\n')
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch)
     s2 = net.addSwitch('s2', cls=OVSKernelSwitch)
-    r1 = net.addSwitch('r1', cls=OVSKernelSwitch, intfeth0='10.0.1.1', eth2='10.0.2.1')
+    r1 = net.addSwitch('r1', cls=OVSKernelSwitch)
     r2 = net.addSwitch('r2', cls=OVSKernelSwitch)
     r3 = net.addSwitch('r3', cls=OVSKernelSwitch)
     r4 = net.addSwitch('r4', cls=OVSKernelSwitch)
