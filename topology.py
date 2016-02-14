@@ -13,8 +13,7 @@ from subprocess import call
 def myNetwork():
 
     net = Mininet( topo=None,
-                   build=False,
-                   ipBase='10.0.0.0/24')
+                   build=False)
 
     info( '*** Adding controller\n' )
     c0=net.addController(name='c0',
