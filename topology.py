@@ -105,6 +105,14 @@ def myNetwork():
 
     info( '*** Post configure switches and hosts\n')
 
+    # delete unnecessary route entry
+    h1.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h1-eth0")
+    h2.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h2-eth0")
+    h3.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h3-eth0")
+    h4.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h4-eth0")
+    h5.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h5-eth0")
+    h6.cmd("route del -net 10.0.0.0 gw 0.0.0.0 netmask 255.0.0.0 dev h6-eth0")
+
     CLI(net)
     net.stop()
 

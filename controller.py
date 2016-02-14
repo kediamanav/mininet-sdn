@@ -52,7 +52,7 @@ def routeChecker(event, ip):
 
   #Find from routing table
   file_name = "r"+str(int(event.connection.dpid))+".txt"
-  print file_name
+  #print file_name
 
   # Get next hop IP and other connections
   nexthopip = ""
@@ -80,8 +80,8 @@ def sendICPMMessage(event,type,code):
   p=event.parsed.find("ipv4")
   packet = event.parsed
 
-  print p
-  print packet
+  #print p
+  #print packet
 
   icmp = pkt.icmp()
   icmp.type = type
@@ -108,8 +108,8 @@ def sendICPMMessage(event,type,code):
   ipp.payload = icmp
   e.payload = ipp
 
-  print e
-  print e.payload
+  #print e
+  #print e.payload
 
   # Send it back to the input port
   event.connection.send(of.ofp_packet_out(
@@ -148,8 +148,8 @@ def get_MAC(ip, dpid, port, event):
                 dst=EthAddr("ff:ff:ff:ff:ff:ff"))
   eth_packet.payload = arp_req
 
-  print eth_packet
-  log.info(eth_packet)
+  #print eth_packet
+  #log.info(eth_packet)
 
   msg = of.ofp_packet_out(data = eth_packet.pack())
   msg.actions.append(of.ofp_action_output(port = of.OFPP_ALL))
@@ -184,7 +184,6 @@ def _handle_arp_request(event):
 
   if IPAddr(my_ip) != protodst:
     return
-
 
 
   #log.info("hwdst: %s, hwsrc: %s, protodst: %s, protosrc: %s", arp_packet.hwsrc, my_mac, arp_packet.protosrc, arp_packet.protodst)
@@ -234,9 +233,18 @@ def _handle_arp_reply(event):
     del packet_queue[str(arp_packet.protosrc)]
 
 
-def getCurrentIP(event):
-  my_ip,my_mac = get_MAC_IP(event.connection.dpid,event.port)
-  return my_ip
+def getMyIP(event, dstip):
+
+  num_of_ports = len(event.connection.features.ports)-1
+
+  for i in range(1,num_of_ports+1):
+
+    my_ip,my_mac = get_MAC_IP(event.connection.dpid,i)
+
+    if prefix_match(dstip,my_ip,32):
+      return True
+
+  return False
 
 
 
@@ -255,7 +263,6 @@ def _handle_PacketIn (event):
 
   #For switch
   if id==11 or id==12:
-
     log.info("Packet in to switch s%i" %(id-10))
 
     """
@@ -267,32 +274,22 @@ def _handle_PacketIn (event):
       if i==event.port:
         continue
 
-      interface = "s"+str(id-10)+"-eth"+str(i)
-      print interface
+      my_ip,src_mac = get_MAC_IP(id,i)
 
-      src_mac = getInterfaceMAC(interface)
-      print src_mac
-
-      e = pkt.ethernet(type=packet.type, src=src_mac, dst="ff:ff:ff:ff:ff:ff")
+      e = pkt.ethernet(type=packet.type, src=EthAddr(src_mac), dst=EthAddr("ff:ff:ff:ff:ff:ff"))
       e.payload = packet.find("ethernet").payload
 
-      msg = of.ofp_packet_out()
-      msg.in_port = event.port
-
-      msg.data = e.pack()
+      msg = of.ofp_packet_out(data = e.pack())
       msg.actions.append(of.ofp_action_output(port = i))
-
       event.connection.send(msg)
 
       log.info("Broadcasting %s.%i -> %s" %(src_mac, event.ofp.in_port, interface))
+      
     """
 
-    
     msg = of.ofp_packet_out(data = event.ofp)
     msg.actions.append(of.ofp_action_output(port = of.OFPP_ALL))
     event.connection.send(msg)
-    
-
 
   else:
 
@@ -314,35 +311,8 @@ def _handle_PacketIn (event):
         _handle_arp_reply(event)
 
 
-      """
-      # Reply to ARP
-      a = packet.find("arp")
-      log.info(a)
-      if a.opcode == a.REQUEST:
-        r = pkt.arp()
-        r.hwtype = a.hwtype
-        r.prototype = a.prototype
-        r.hwlen = a.hwlen
-        r.protolen = a.protolen
-        r.opcode = r.REPLY
-        r.hwdst = a.hwsrc
-        r.protodst = a.protosrc
-        r.protosrc = a.protodst
-        r.hwsrc = EthAddr("46:4c:bd:ad:6c:be")
-        e = pkt.ethernet(type=packet.type, src=r.hwsrc, dst=a.hwsrc)
-        e.payload = r
-
-        msg = of.ofp_packet_out()
-        msg.data = e.pack()
-        msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-        msg.in_port = event.port
-        event.connection.send(msg)
-
-        log.info("%s ARPed for %s", r.protodst, r.protosrc)
-      """
-
     # Reply to pings
-    elif packet.find("icmp") and getCurrentIP(event)==str(packet.find("ipv4").dstip):
+    elif packet.find("icmp") and getMyIP(event,str(packet.find("ipv4").dstip)):
       # Make the ping reply
       log.info("ICMP Ping message")
 
@@ -412,10 +382,30 @@ def _handle_PacketIn (event):
         #Checkup route table
         nexthopip, interface, length = routeChecker(event, str(p.dstip))
 
+        #print nexthopip, interface, length
+
         #Generate net unreachable ICMP
         if length==0:
-          log.warning("Destination net unreachable ICMP message")
-          sendICPMMessage(event,3,0)
+          num_of_ports = len(event.connection.features.ports)-1
+          #print num_of_ports
+
+          flag=0
+
+          for i in range(1,num_of_ports+1):
+
+            my_ip,src_mac = get_MAC_IP(id,i)
+            #print my_ip, p.dstip, src_mac
+
+            if prefix_match(str(p.dstip),my_ip,24):
+              flag=1
+              break
+
+          if flag==0:
+            log.warning("Destination net unreachable ICMP message")
+            sendICPMMessage(event,3,0)
+          else:
+            log.warning("Destination host unreachable ICMP message")
+            sendICPMMessage(event,3,1)
 
         else:
           r_ip,src_mac = get_MAC_IP(id,int(interface[6]))
